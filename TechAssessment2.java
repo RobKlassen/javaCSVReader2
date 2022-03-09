@@ -89,6 +89,7 @@ public class TechAssessment2 {
             for (int i = 0; i < dataToPrint.size(); i++){
                 finalFileWrite.write(dataToPrint.get(i).productID + ";" + dataToPrint.get(i).finalQty + "\n");
             }
+            System.out.println("ABC.csv successfully created!");
             finalFileWrite.close();
         } catch (IOException event){
             event.printStackTrace();
