@@ -1,0 +1,23 @@
+    public static void printToFile(ArrayList<OutputLine> dataToPrint){
+        File fileCheck = new File("ABC.csv");
+        boolean exists = fileCheck.exists();
+        int iteration = 0;
+        String filename = "ABC";
+
+        try {
+            while (exists == true) {
+                iteration++;
+                filename = "ABC" + iteration;
+                fileCheck = new File(filename + ".csv");
+                exists = fileCheck.exists();
+            } 
+
+            FileWriter finalFileWrite = new FileWriter(filename + ".csv");
+            for (int i = 0; i < dataToPrint.size(); i++){
+                finalFileWrite.write(dataToPrint.get(i).productID + ";" + dataToPrint.get(i).finalQty + "\n");
+            }
+            finalFileWrite.close();
+        } catch (IOException event){
+            event.printStackTrace();
+        }
+    }

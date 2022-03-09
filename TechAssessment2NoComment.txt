@@ -1,0 +1,74 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class TechAssessment2 {
+    public static ArrayList<Orderline> getInfoAsArr(File csvFile){
+        ArrayList<Orderline> arrOfObj = new ArrayList<Orderline>();
+        try{
+            Scanner csvReader = new Scanner (csvFile);
+            while(csvReader.hasNextLine()){
+                String lineData = csvReader.nextLine(); 
+                Orderline lineObj = new Orderline(lineData);
+                if (lineObj.failed){System.exit(0);}
+                arrOfObj.add(lineObj);
+            }
+            csvReader.close();
+        } catch (FileNotFoundException event){
+            event.printStackTrace();
+        }
+        return arrOfObj;
+    }
+
+    public static ArrayList<OutputLine> sortCondenseInfo(ArrayList<Orderline> orderlineObjs){
+        Collections.sort(orderlineObjs, Orderline.prodIdComparator);
+        ArrayList<OutputLine> condensedData = new ArrayList<OutputLine>();
+        int currentProductID = orderlineObjs.get(0).productInt;
+        int ongoingSum = 0;
+        for (int i = 0; i < orderlineObjs.size(); i++){
+            Orderline currentLine = orderlineObjs.get(i);
+            if (currentLine.productInt == currentProductID){
+                ongoingSum = ongoingSum + currentLine.quantity;                
+                if (i == (orderlineObjs.size() - 1)){
+                    OutputLine newLineObj = new OutputLine(ongoingSum, orderlineObjs.get(i - 1).productStr);
+                    condensedData.add(newLineObj);
+                }
+            } else {
+                OutputLine newLineObj = new OutputLine(ongoingSum, orderlineObjs.get(i - 1).productStr);
+                condensedData.add(newLineObj);
+                ongoingSum = currentLine.quantity;
+                currentProductID = currentLine.productInt;
+            }
+        }
+        Collections.sort(condensedData, OutputLine.prodQtyComparator);
+        return condensedData;
+    }
+
+    public static void printToFile(ArrayList<OutputLine> dataToPrint){
+        try {
+            FileWriter finalFileWrite = new FileWriter("ABC.csv");
+            for (int i = 0; i < dataToPrint.size(); i++){
+                finalFileWrite.write(dataToPrint.get(i).productID + ";" + dataToPrint.get(i).finalQty + "\n");
+            }
+            finalFileWrite.close();
+        } catch (IOException event){
+            event.printStackTrace();
+        }
+    }
+
+    public static void main (String[] args){
+        if (args.length == 1){
+            File csvFile = new File(args[0]);
+            ArrayList<Orderline> orderLinesArray = getInfoAsArr(csvFile);
+            ArrayList<OutputLine> condensedData = sortCondenseInfo(orderLinesArray);
+            printToFile(condensedData);
+        } else {
+            System.out.println("TechAssessment2 takes exactly 1 argument");
+            System.out.println("First Argument Required As File That Exists In Working Directory, (ie, 'java TechAssessment2 orderlines.csv')");
+        }
+    }
+}
